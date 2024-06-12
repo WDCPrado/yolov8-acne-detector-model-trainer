@@ -28,7 +28,7 @@ version = get_next_version(logs_dir)
 
 # Ruta donde se guardará la nueva versión
 ruta = os.path.join(logs_dir, version)
-best_path = os.path.join(logs_dir, f"version_{epochs}_epochs", "weights", "best.pt")
+best_path = os.path.join(logs_dir, version, "weights", "best.pt")
 
 # Cargar el modelo desde el archivo de configuración
 data = "acne-1/data.yaml" #carpeta del dataset
