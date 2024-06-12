@@ -29,7 +29,7 @@ ruta = os.path.join(logs_dir, version)
 best_path = os.path.join(logs_dir, version, "weights", "best.pt")
 
 # Cargar el modelo desde el archivo de configuración
-data = "yolov8-acne-detection-1/data.yaml"
+data = "acne-1/data.yaml"
 model = YOLO("yolov8l.pt")  # Cargar un modelo preentrenado
 
 # Entrenar el modelo
