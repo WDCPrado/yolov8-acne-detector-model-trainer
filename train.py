@@ -1,6 +1,7 @@
 import os
 import shutil
 from ultralytics import YOLO
+import torch
 
 # Función para encontrar la última versión y generar la nueva versión
 def get_next_version(logs_dir):
@@ -17,6 +18,7 @@ def get_next_version(logs_dir):
 # Definir la ruta del directorio de logs
 logs_dir = "logs"
 models_dir = "models"
+epochs = 10 #epochs de entrenamiento
 
 # Crear el directorio de modelos si no existe
 os.makedirs(models_dir, exist_ok=True)
@@ -26,15 +28,26 @@ version = get_next_version(logs_dir)
 
 # Ruta donde se guardará la nueva versión
 ruta = os.path.join(logs_dir, version)
-best_path = os.path.join(logs_dir, version, "weights", "best.pt")
+best_path = os.path.join(logs_dir, f"version_{epochs}_epochs", "weights", "best.pt")
 
 # Cargar el modelo desde el archivo de configuración
-data = "acne-1/data.yaml"
+data = "acne-1/data.yaml" #carpeta del dataset
 model = YOLO("yolov8l.pt")  # Cargar un modelo preentrenado
+
+# Verificar si CUDA está disponible y obtener información del dispositivo
+if torch.cuda.is_available():
+    device = torch.device("cuda:0")
+    print(f"Usando GPU: {torch.cuda.get_device_name(0)}")
+else:
+    device = torch.device("cpu")
+    print("CUDA no está disponible, usando CPU")
+
+# Configurar el dispositivo para el entrenamiento del modelo
+model.to(device)
 
 # Entrenar el modelo
 results = model.train(data=data, 
-                      epochs=20, 
+                      epochs=epochs, 
                       imgsz=640, 
                       project=logs_dir,
                       name=version,
