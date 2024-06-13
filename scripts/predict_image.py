@@ -15,7 +15,7 @@ def get_latest_model(models_dir):
         raise FileNotFoundError("No se encontraron versiones en la carpeta de modelos.")
 
 # Definir la ruta del directorio de modelos
-models_dir = "models"
+models_dir = "logs/models"
 
 # Obtener la última versión
 latest_model, latest_version = get_latest_model(models_dir)

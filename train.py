@@ -1,7 +1,6 @@
 import os
 import shutil
 from ultralytics import YOLO
-import torch
 
 # Función para encontrar la última versión y generar la nueva versión
 def get_next_version(logs_dir):
@@ -15,12 +14,35 @@ def get_next_version(logs_dir):
     else:
         return "v1"
 
+
+def train(epochs, preTrainedModel, data, device,  logs_dir, version, models_dir, best_path, ruta):
+    # Entrenar el modelo
+    model = YOLO(preTrainedModel)  # Cargar un modelo preentrenado 
+    results = model.train(data=data, 
+                        epochs=epochs, 
+                        imgsz=640, 
+                        project=logs_dir,
+                        name=version,
+                        exist_ok=True, 
+                        save=True, 
+                        save_txt=True, 
+                        save_conf=True,
+                        device=[device])
+
+    # Guardar el mejor modelo entrenado en la carpeta models con la versión en el nombre
+    new_best_path = os.path.join(models_dir, f"best{version}.pt")
+    shutil.copy(best_path, new_best_path)
+
+    print(f"Modelo entrenado y guardado en la ruta: {ruta}")
+    print(f"El mejor modelo se ha guardado en: {new_best_path}")
+    return results
+
+
 # Definir la ruta del directorio de logs
 logs_dir = "logs"
-models_dir = "models"
-epochs = 10 #epochs de entrenamiento
+os.makedirs(logs_dir, exist_ok=True)
 
-# Crear el directorio de modelos si no existe
+models_dir = "logs/models"
 os.makedirs(models_dir, exist_ok=True)
 
 # Obtener la siguiente versión
@@ -30,36 +52,12 @@ version = get_next_version(logs_dir)
 ruta = os.path.join(logs_dir, version)
 best_path = os.path.join(logs_dir, version, "weights", "best.pt")
 
+
 # Cargar el modelo desde el archivo de configuración
-data = "acne-1/data.yaml" #carpeta del dataset
-model = YOLO("yolov8l.pt")  # Cargar un modelo preentrenado
+data_folder="jerawat-4"
+data = f"{data_folder}/data.yaml" #carpeta del dataset
+preTrainedModel = "yolov8l.pt"
+epochs = 10
+device = 0
 
-# Verificar si CUDA está disponible y obtener información del dispositivo
-if torch.cuda.is_available():
-    device = torch.device("cuda:0")
-    print(f"Usando GPU: {torch.cuda.get_device_name(0)}")
-else:
-    device = torch.device("cpu")
-    print("CUDA no está disponible, usando CPU")
-
-# Configurar el dispositivo para el entrenamiento del modelo
-model.to(device)
-
-# Entrenar el modelo
-results = model.train(data=data, 
-                      epochs=epochs, 
-                      imgsz=640, 
-                      project=logs_dir,
-                      name=version,
-                      exist_ok=True, 
-                      save=True, 
-                      save_txt=True, 
-                      save_conf=True,
-                      device=[0])
-
-# Guardar el mejor modelo entrenado en la carpeta models con la versión en el nombre
-new_best_path = os.path.join(models_dir, f"best{version}.pt")
-shutil.copy(best_path, new_best_path)
-
-print(f"Modelo entrenado y guardado en la ruta: {ruta}")
-print(f"El mejor modelo se ha guardado en: {new_best_path}")
+train(epochs, preTrainedModel, data, device,  logs_dir, version, models_dir, best_path, ruta)
