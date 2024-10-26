@@ -1,4 +1,2 @@
-/yolov8-acne-detection*
-/venv
-/logs
-yolov8*
+/dataset
+/runs

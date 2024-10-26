@@ -1,0 +1,14 @@
+name: acne_detection
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+  - pytorch-cuda=11.8
+  - pip
+  - pip:
+      - ultralytics
